@@ -14,13 +14,13 @@ This writeup/tabletop is an attempt to further understand splunk searching & the
 ![exchange_control_panel](https://github.com/jamesryla/conti_tabletop/assets/58945104/1c01aef2-e5a7-4210-8302-c4f2b27387ad)
 
 ### 1
-The first step should be to locate the malware within the system. This exercise assumes the attacker already has initial access. Using the [sysmon reference guide](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon), we see that Event ID 11 is used for the creation of files. I will search using EventCode=11 and look under the Image category for any standout files. cmd.exe has been created in /Documents which immediately stands out as abnormal.
+The first step in this exercise is to locate the malware within the system. This exercise assumes the attacker already has initial access. Using the [sysmon reference guide](https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon), we see that Event ID 11 is used for the creation of files. I will search using EventCode=11 and look under the Image category for any standout files. cmd.exe has been created in /Documents which stands out as abnormal.
 > index=main sourcetype="WinEventLog:Microsoft-Windows-Sysmon/Operational" EventCode=11
 
 ![ioc1result](https://github.com/jamesryla/conti_tabletop/assets/58945104/161e6eee-c9db-43b0-bbe3-62ea9a25b553)
 
 ### 2
-We can verify the maliciousness of this file by grabbing the hash. I will specify the cmd.exe Image from above and search md5 to grab the hash. Heading over to virustotal, we can search using the md5 hash and see that this file is indeed malicious and has been categorized as conti ransomware by security vendors.
+We can verify the maliciousness of this file by getting the md5 hash. I will specify the cmd.exe Image from above and search md5 to grab the hash. Heading over to virustotal, we can search using the hash and see that this file is indeed malicious and has been categorized as conti ransomware by various security vendors.
 > index=main sourcetype="WinEventLog:Microsoft-Windows-Sysmon/Operational" Image="C:\\Users\\Administrator\\Documents\\cmd.exe" md5
 
 ![ioc2result](https://github.com/jamesryla/conti_tabletop/assets/58945104/c6cc6cba-fbf8-4c70-9187-0759bd094ce7)
@@ -59,7 +59,7 @@ We can search these logs for http POST method and for common web shell file type
 ![ioc7result](https://github.com/jamesryla/conti_tabletop/assets/58945104/52318fa3-7333-4a5b-ba28-d8ab98f816f6)
 
 ### 8
-Finally, heading back to our sysmon logs, let's see if we can track down how this shell was executed. We can achieve this by searchign for the .aspx file we previously found and checking out the CommandLine field.
+Finally, heading back to our sysmon logs, let's see if we can track down how this shell was executed. We can achieve this by searching for the .aspx file we previously found and checking out the CommandLine field.
 > index=main i3gfPctK1c2x.aspx sourcetype="WinEventLog:Microsoft-Windows-Sysmon/Operational"
 
 ![ioc8result](https://github.com/jamesryla/conti_tabletop/assets/58945104/4e3fed10-8819-475f-85ce-aa3142403077)
